@@ -8,21 +8,6 @@ orbs:
   aws-cli: circleci/aws-cli@2.0.3
 # Orchestrate or schedule a set of jobs
 jobs:
-#   myjob1:  # Choose any name, such as `build`
-#       # The primary container, where your job's commands will run
-#       docker:
-#         - image: 
-#       steps:
-#         - checkout # check out the code in the project directory
-#         - run: echo "hello world" # run the `echo` command
-# # Sequential workflow
-# workflows:
-#   # Name the workflow
-#   myWorkflow:
-#     jobs:
-#       - myjob1
-#       - myjob2
-
 create_infrastructure: 
       docker:
         - image: amazon/aws-cli
@@ -36,4 +21,18 @@ create_infrastructure:
                 --stack-name myStack-${CIRCLE_WORKFLOW_ID:0:5} \
                 --region us-east-1
 
-        - destroy_environment
+        # - destroy_environment
+#   myjob1:  # Choose any name, such as `build`
+#       # The primary container, where your job's commands will run
+#       docker:
+#         - image: 
+#       steps:
+#         - checkout # check out the code in the project directory
+#         - run: echo "hello world" # run the `echo` command
+# # Sequential workflow
+workflows:
+  # Name the workflow
+  my_Workflow:
+    jobs:
+      - create_Infrastructure
+      # - myjob2
