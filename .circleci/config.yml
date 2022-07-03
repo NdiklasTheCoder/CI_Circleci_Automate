@@ -11,17 +11,17 @@ orbs:
 
 jobs:
   create_infrastructure: 
-       docker:
-         - image: amazon/aws-cli
-        steps:
-          - checkout
-          - run:
-              name: Create Cloudformation Stack
-              command: |
-                aws cloudformation deploy \
-                  --template-file template.yml \
-                  --stack-name myStack-${CIRCLE_WORKFLOW_ID:0:5} \
-                  --region us-east-1
+    docker:
+      - image: amazon/aws-cli
+    steps:
+      - checkout
+      - run:
+          name: Create Cloudformation Stack
+          command: |
+            aws cloudformation deploy \
+              --template-file template.yml \
+              --stack-name myStack-${CIRCLE_WORKFLOW_ID:0:5} \
+              --region us-east-1
 
         # - destroy_environment
 #   myjob1:  # Choose any name, such as `build`
@@ -33,8 +33,15 @@ jobs:
 #         - run: echo "hello world" # run the `echo` command
 # # Sequential workflow
 workflows:
-  # Name the workflow
-  my_Workflow:
+  # Name the workflow "welcome"
+  my_workflow:
+    # Run the welcome/run job in its own container
     jobs:
-        - create_infrastructure
-      # - myjob2
+      # - welcome/run
+      # - print_greetings
+      # - upload_file
+      # - download_file:
+      #     requires:
+      #       - upload_file
+      - create_infrastructure
+      # - configure_infrastructure
