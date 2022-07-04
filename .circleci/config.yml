@@ -8,20 +8,40 @@ orbs:
   aws-cli: circleci/aws-cli@2.0.3
 # Orchestrate or schedule a set of jobs
 
+commands:
+  # Exercise: Reusable Job Code
+  print_pipeline_id:
+    parameters:
+      id: 
+        type: string
+    steps:
+      - run: echo << parameters.id >>
+
+  # Exercise - Rollback
+  destroy_environment:
+    steps:
+      - run:
+          name: Destroy environment
+          # ${CIRCLE_WORKFLOW_ID} is a Built-in environment variable 
+          # ${CIRCLE_WORKFLOW_ID:0:5} takes the first 5 chars of the variable CIRCLE_CI_WORKFLOW_ID 
+          when: on_fail
+          command: |
+            aws cloudformation delete-stack --stack-name myStack-${CIRCLE_WORKFLOW_ID:0:5}
+
 
 jobs:
-  # create_infrastructure: 
-  #   docker:
-  #     - image: amazon/aws-cli
-  #   steps:
-  #     - checkout
-  #     - run:
-  #         name: Create Cloudformation Stack
-  #         command: |
-  #           aws cloudformation deploy \
-  #             --template-file template.yml \
-  #             --stack-name myStack-${CIRCLE_WORKFLOW_ID:0:5} \
-  #             --region us-east-1
+  create_infrastructure:
+    docker:
+      - image: amazon/aws-cli
+    steps:
+      - checkout
+      - run:
+          name: Create Cloudformation Stack
+          command: |
+            aws cloudformation deploy \
+              --template-file template.yml \
+              --stack-name myStack-${CIRCLE_WORKFLOW_ID:0:5} \
+              --region us-east-1
 
   # configure_infrastructure: 
   #   docker:
@@ -49,7 +69,7 @@ jobs:
       - run:
           name: smoke test
           command: |
-            URL="https://blog.udacity.com/"
+            URL="https://blog.udacityz.com/"
             # Test if website exists
             if curl -s --head ${URL} 
             then
@@ -57,7 +77,8 @@ jobs:
             else
               return 1
             fi
-      # - destroy_environment
+
+      - destroy_environment
         # - destroy_environment
 #   myjob1:  # Choose any name, such as `build`
 #       # The primary container, where your job's commands will run
@@ -78,6 +99,6 @@ workflows:
       # - download_file:
       #     requires:
       #       - upload_file
-      # - create_infrastructure
+      - create_infrastructure
       # - configure_infrastructure
       - smoke_test
