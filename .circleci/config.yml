@@ -10,12 +10,12 @@ orbs:
 
 commands:
   # Exercise: Reusable Job Code
-  # print_pipeline_id:
-  #   parameters:
-  #     id: 
-  #       type: string
-  #   steps:
-  #     - run: echo << parameters.id >>
+  print_pipeline_id:
+    parameters:
+      id: 
+        type: string
+    steps:
+      - run: echo << parameters.id >>
 
   # Exercise - Rollback
   destroy_environment:
@@ -101,4 +101,4 @@ workflows:
       #       - upload_file
       - create_infrastructure
       # - configure_infrastructure
-      # - smoke_test
+      - smoke_test
