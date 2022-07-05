@@ -30,23 +30,41 @@ commands:
 
 
 jobs:
-  # create_infrastructure:
-  #   docker:
-  #     - image: amazon/aws-cli
-  #   steps:
-  #     - checkout
-  #     - run:
-  #         name: Create Cloudformation Stack
-  #         command: |
-  #           aws cloudformation deploy \
-  #             --template-file template.yml \
-  #             --stack-name myStack-${CIRCLE_WORKFLOW_ID:0:5} \
-  #             --region us-east-1
-  #     # Fail the job intentionally to simulate an error.
-  #     # Uncomment the line below if you want to fail the current step
-  #     - run: return 1
-  #     - destroy_environment
-  
+  create_infrastructure:
+    docker:
+      - image: amazon/aws-cli
+    steps:
+      - checkout
+      - run:
+          name: Create Cloudformation Stack
+          command: |
+            aws cloudformation deploy \
+              --template-file template.yml \
+              --stack-name myStack-${CIRCLE_WORKFLOW_ID:0:5} \
+              --region us-east-1
+      # Fail the job intentionally to simulate an error.
+      # Uncomment the line below if you want to fail the current step
+      # - run: return 1
+      # - destroy_environment
+
+  configure_infrastructure: 
+    docker:
+      - image: python:3.7-alpine3.11
+    steps:
+      - checkout
+      - add_ssh_keys:
+          fingerprints: ["7f:85:fc:3c:29:96:e0:77:08:dd:f4:27:db:8d:d4:74"] # You can get this ID in the section where you registered the SSH Key
+      - run:
+          name: Install dependencies
+          command: |
+            # install the dependencies needed for your playbook
+            apk add --update ansible 
+      - run:
+          name: Configure server
+          command: |
+            ansible-playbook -i inventory.txt main-remote.yml
+
+
         # when: on_fail
   # Job 1
   # Executes the bucket.yml - Deploy an S3 bucket, and interface with that bucket to synchronize the files between local and the bucket.
@@ -121,22 +139,7 @@ jobs:
           #  aws cloudformation delete-stack --stack-name production-distro 
           #  aws cloudformation delete-stack --stack-name stack-create-bucket-${CIRCLE_WORKFLOW_ID:0:7}
           #  aws cloudformation delete-stack --stack-name myStack-${CIRCLE_WORKFLOW_ID:0:5}   
-  # configure_infrastructure: 
-  #   docker:
-  #     - image: python:3.7-alpine3.11
-  #   steps:
-  #     - checkout
-  #     - add_ssh_keys:
-  #         fingerprints: ["7f:85:fc:3c:29:96:e0:77:08:dd:f4:27:db:8d:d4:74"] # You can get this ID in the section where you registered the SSH Key
-  #     - run:
-  #         name: Install dependencies
-  #         command: |
-  #           # install the dependencies needed for your playbook
-  #           apk add --update ansible 
-  #     - run:
-  #         name: Configure server
-  #         command: |
-  #           ansible-playbook -i inventory.txt main-remote.yml
+
 
 
   smoke_test:
